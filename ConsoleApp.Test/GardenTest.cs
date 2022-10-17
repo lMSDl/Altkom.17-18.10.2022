@@ -20,5 +20,18 @@ namespace ConsoleApp.Test
             //Assert
             Assert.AreEqual(VALID_SIZE, garden.Size);
         }
+        [TestMethod]
+        public void Garden_InvalidSize_Exception()
+        {
+            //Arrage
+            const int INVALID_SIZE = -1;
+
+            //Act
+            Action action = () => new Garden(INVALID_SIZE);
+
+            //Assert
+            var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(action);
+            Assert.AreEqual("size", exception.ParamName);
+        }
     }
 }

@@ -1,9 +1,13 @@
-﻿namespace ConsoleApp.Test
+﻿using System;
+
+namespace ConsoleApp.Test
 {
     public class Garden
     {
         public Garden(int size)
         {
+            if (size < 0)
+                throw new ArgumentOutOfRangeException(nameof(size));
             Size = size;
         }
 
