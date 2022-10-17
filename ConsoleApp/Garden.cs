@@ -12,5 +12,10 @@ namespace ConsoleApp.Test
         }
 
         public int Size { get; }
+
+        public bool Plant(string name)
+        {
+            return true;
+        }
     }
 }

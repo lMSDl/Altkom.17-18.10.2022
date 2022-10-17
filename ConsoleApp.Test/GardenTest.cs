@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AutoFixture;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -34,6 +35,19 @@ namespace ConsoleApp.Test
             Assert.AreEqual("size", exception.ParamName);
         }
 
+        [TestMethod]
+        public void Plant_Name_True()
+        {
+            //Arrange
+            string name = new Fixture().Create<string>();
+            const int VALID_SIZE = 1;
+            var garden = new Garden(VALID_SIZE);
 
+            //Act
+            var result = garden.Plant(name);
+
+            //Assert
+            Assert.IsTrue(result);
+        }
     }
 }
