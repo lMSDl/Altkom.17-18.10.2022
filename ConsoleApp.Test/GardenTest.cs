@@ -9,29 +9,31 @@ namespace ConsoleApp.Test
     public class GardenTest
     {
         [TestMethod]
-        public void Garden_ValidSize_SizeInit()
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(int.MaxValue)]
+        public void Garden_ValidSize_SizeInit(int validSize)
         {
-            //Arrage
-            const int VALID_SIZE = 1;
-
             //Act
-            var garden = new Garden(VALID_SIZE);
+            var garden = new Garden(validSize);
 
             //Assert
-            Assert.AreEqual(VALID_SIZE, garden.Size);
+            Assert.AreEqual(validSize, garden.Size);
         }
-        [TestMethod]
-        public void Garden_InvalidSize_Exception()
-        {
-            //Arrage
-            const int INVALID_SIZE = -1;
 
+        [TestMethod]
+        [DataRow(-1)]
+        [DataRow(int.MinValue)]
+        public void Garden_InvalidSize_Exception(int invalidSize)
+        {
             //Act
-            Action action = () => new Garden(INVALID_SIZE);
+            Action action = () => new Garden(invalidSize);
 
             //Assert
             var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(action);
             Assert.AreEqual("size", exception.ParamName);
         }
+
+
     }
 }
