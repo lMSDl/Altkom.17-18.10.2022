@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,8 @@ namespace ConsoleApp.Test
         public void Garden_ValidSize_SizeInit(int validSize)
         {
             //Act
-            var garden = new Garden(validSize);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(validSize, logger.Object);
 
             //Assert
             Assert.AreEqual(validSize, garden.Size);
@@ -29,7 +31,8 @@ namespace ConsoleApp.Test
         public void Garden_InvalidSize_Exception(int invalidSize)
         {
             //Act
-            Action action = () => new Garden(invalidSize);
+            var logger = new Moq.Mock<ILogger>();
+            Action action = () => new Garden(invalidSize, logger.Object);
 
             //Assert
             var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(action);
@@ -42,7 +45,8 @@ namespace ConsoleApp.Test
             //Arrange
             string name = new Fixture().Create<string>();
             const int VALID_SIZE = 1;
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
 
             //Act
             var result = garden.Plant(name);
@@ -59,7 +63,8 @@ namespace ConsoleApp.Test
         public void Plant_InvalidName_NotAddedToGarden(string name, int size)
         {
             //Arrange
-            var garden = new Garden(size);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(size,logger.Object);
 
             //Act
             bool result;
@@ -83,7 +88,8 @@ namespace ConsoleApp.Test
             //Arrange
             string name = new Fixture().Create<string>();
             const int VALID_SIZE = 0;
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
 
             //Act
             var result = garden.Plant(name);
@@ -99,7 +105,8 @@ namespace ConsoleApp.Test
             //Arrange
             const string NULL_NAME = null;
             const int VALID_SIZE = 0;
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
 
             //Act
             Action action = () => garden.Plant(NULL_NAME);
@@ -118,7 +125,8 @@ namespace ConsoleApp.Test
         {
             //Arrange
             const int VALID_SIZE = 0;
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
 
             //Act
             Action action = () => garden.Plant(invalidName);
@@ -135,7 +143,8 @@ namespace ConsoleApp.Test
             //Arrange
             const int VALID_SIZE = 1;
             string name = new Fixture().Create<string>();
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
             garden.Plant(name);
 
             //Act
@@ -153,7 +162,8 @@ namespace ConsoleApp.Test
             //Arrange
             string name = new Fixture().Create<string>();
             const int VALID_SIZE = 1;
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
 
             //Act
             garden.Plant(name);
@@ -167,7 +177,8 @@ namespace ConsoleApp.Test
         {
             //Arrange
             const int VALID_SIZE = 0;
-            var garden = new Garden(VALID_SIZE);
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
 
             //Act
             var result1 = garden.GetPlants();
@@ -175,6 +186,49 @@ namespace ConsoleApp.Test
 
             //Assert
             Assert.AreNotSame(result1, result2);
+        }
+
+        [TestMethod]
+        public void Plant_Name_Logging()
+        {
+            //Arrange
+            const int VALID_SIZE = 1;
+            string plantName = new Fixture().Create<string>();
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
+
+            //Act
+            garden.Plant(plantName);
+
+            //Assert
+            logger.Verify(x => x.Log(It.Is<string>(xx => xx.Contains(plantName))), Times.Once);
+        }
+
+        [TestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow(" ")]
+        [DataRow("a")]
+        public void Plant_Exception_Logging(string plantName)
+        {
+            //Arrange
+            const int VALID_SIZE = 2;
+            var logger = new Moq.Mock<ILogger>();
+            var garden = new Garden(VALID_SIZE, logger.Object);
+
+            //Act
+            try
+            {
+                garden.Plant(plantName);
+                garden.Plant(plantName);
+            }
+            //Assert
+            catch
+            {
+                logger.Verify(x => x.Log(It.Is<string>(xx => xx.Contains("Exception"))), Times.AtLeastOnce);
+                return;
+            }
+            Assert.Fail();
         }
     }
 }
